@@ -1,0 +1,9 @@
+alloy,series,key_alloy,yield_mpa,tensile_mpa,density_g_cc,typical_use,specific_strength
+1100-H14,1xxx pure,99% Al,117,124,2.71,"Foil, electrical, chemical",43.0
+2024-T3,2xxx Cu,Al-Cu,345,483,2.78,Aircraft structures,124.0
+3003-H14,3xxx Mn,Al-Mn,145,150,2.73,"Roofing, cookware, ducts",53.0
+5052-H32,5xxx Mg,Al-Mg,193,228,2.68,"Marine, fuel tanks",72.0
+6061-T6,6xxx Mg-Si,Al-Mg-Si,276,310,2.7,"Structural, frames",102.0
+6063-T6,6xxx Mg-Si,Al-Mg-Si,214,241,2.7,"Extrusions, windows",79.0
+7075-T6,7xxx Zn,Al-Zn-Mg-Cu,503,572,2.81,"Aircraft, high-stress",179.0
+A356-T6,Cast Si,Al-Si-Mg,205,280,2.67,"Cast wheels, engine parts",77.0

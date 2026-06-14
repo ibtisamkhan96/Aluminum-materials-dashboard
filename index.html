@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aluminium: The Metal of Lightness, 2025 Data Dashboard</title>
+<meta name="description" content="Interactive data dashboard on aluminium: production, real-world scale, alloy families, strength-to-weight, and the recycling/energy story. By Ibtisam Ahmed Khan.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700;800&display=swap');
+  :root{
+    --bg:#0b0f14; --card:#131a22; --card2:#19222c; --border:#26333f;
+    --text:#eef3f8; --muted:#97a6b6; --steel:#8ba3bd; --accent:#34cfe6;
+    --accent2:#7fe3d0; --amber:#ffc24d; --teal:#34dbf0; --green:#3ee0a4; --red:#ff6b6b; --violet:#b79cff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Fira Sans',system-ui,sans-serif;min-height:100vh;line-height:1.55;
+    background-image:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(52,207,230,.10),transparent),
+    radial-gradient(ellipse 80% 50% at 80% -10%,rgba(139,163,189,.12),transparent)}
+  .wrap{max-width:1280px;margin:0 auto;padding:32px 24px 60px}
+  header{text-align:center;margin-bottom:8px}
+  .eyebrow{font-family:'Fira Code',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:12px}
+  h1{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;line-height:1.1;
+    background:linear-gradient(90deg,var(--steel) 10%,#fff 45%,var(--accent) 90%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted);font-size:15px;margin-top:10px;max-width:780px;margin-left:auto;margin-right:auto}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:28px 0;flex-wrap:wrap;position:sticky;top:0;z-index:10;
+    padding:12px 0;background:linear-gradient(180deg,var(--bg) 70%,transparent)}
+  .tab{display:inline-flex;align-items:center;gap:9px;padding:10px 20px;border-radius:99px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;
+    transition:background .2s,color .2s,border-color .2s,transform .2s}
+  .tab svg{width:17px;height:17px;flex-shrink:0}
+  .tab:hover{border-color:var(--accent);color:var(--text);transform:translateY(-2px)}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .tab.active{background:linear-gradient(90deg,#0e7d92,#41586f);color:#fff;border-color:transparent;
+    box-shadow:0 4px 20px rgba(52,207,230,.22)}
+  .panel{display:none;animation:fade .4s ease}
+  .panel.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+  .kpi:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--steel))}
+  .kpi .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+  .kpi .val{font-size:30px;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-1px}
+  .kpi .delta{font-size:13px;margin-top:6px;font-weight:600}
+  .up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid .full{grid-column:1/-1}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;transition:border-color .3s}
+  .card:hover{border-color:#33455c}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .card h3 svg{width:18px;height:18px;color:var(--accent)}
+  .card .note{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chartbox{position:relative;height:340px}
+  .chartbox.tall{height:430px}
+  .legendrow{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{text-align:left;color:var(--muted);font-weight:600;padding:10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px;font-size:11px}
+  .tbl td{padding:11px 10px;border-bottom:1px solid #1a232e}
+  .tbl td.mono{font-family:'Fira Code',monospace}
+  .tbl tr{transition:background .15s}
+  .tbl tr:hover td{background:var(--card2)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700}
+  .scroll{max-height:430px;overflow:auto;border-radius:12px}
+  .cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+  .cmpcard{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .2s,border-color .2s}
+  .cmpcard:hover{transform:translateY(-4px);border-color:var(--accent)}
+  .cmpcard svg.icon{width:74px;height:74px;color:var(--steel);margin-bottom:14px}
+  .cmpcard .big{font-size:40px;font-weight:800;font-family:'Fira Code',monospace;color:var(--accent);letter-spacing:-1.5px;line-height:1}
+  .cmpcard .who{font-size:17px;font-weight:700;margin:10px 0 6px}
+  .cmpcard .desc{font-size:13px;color:var(--muted);line-height:1.5}
+  footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px;line-height:1.9}
+  .infobox{font-size:14px;line-height:1.8}
+  .infobox strong{color:#fff}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0L7 7Zm10 0-3 7a3 3 0 0 0 6 0l-3-7Z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-feather" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8a5.5 5.5 0 0 0-7.8 0L4 12.2V20h7.8l8.4-8.4a5.5 5.5 0 0 0 0-7.8ZM16 8 4 20M16 8h-4M16 8v4"/></symbol>
+  <symbol id="i-recycle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19h-2.5a2 2 0 0 1-1.7-3l2-3.4M9.2 5.6l1.3-2.2a2 2 0 0 1 3.4 0l2 3.4M17 9.5l1.8 3a2 2 0 0 1-1.7 3H13M7 19l2.5-2M7 19l-.5-3.4M16.3 6.4l-2.8 1.3M16.3 6.4 13 7"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></symbol>
+  <symbol id="i-can" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5h8M7 7h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7ZM7 7l1-2M17 7l-1-2M7 11h10"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16Z"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M3 13l2-5a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 8l2 5v4H3v-4Z"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Materials Data Series · No. 02</div>
+    <h1>Aluminium: The Metal That Made Things Light</h1>
+    <div class="sub">The world's #2 metal, a third the weight of steel, endlessly recyclable, and almost entirely made by burning electricity. Who makes it, what the alloys do, why it flies, and the energy story behind every can. 2024–25 (IAI / USGS) · Compiled June 2026</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-p="production"><svg><use href="#i-globe"/></svg>Production &amp; Geography</button>
+    <button class="tab" data-p="scale"><svg><use href="#i-scale"/></svg>What 72 Mt Looks Like</button>
+    <button class="tab" data-p="alloys"><svg><use href="#i-layers"/></svg>The Alloy Families</button>
+    <button class="tab" data-p="props"><svg><use href="#i-feather"/></svg>Strength-to-Weight</button>
+    <button class="tab" data-p="energy"><svg><use href="#i-recycle"/></svg>The Energy Story</button>
+  </nav>
+
+  <!-- PRODUCTION -->
+  <div class="panel show" id="production">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">World primary 2024</div><div class="val">72.3 Mt</div><div class="delta up">▲ growth resumed into 2025</div></div>
+      <div class="kpi"><div class="lbl">China share</div><div class="val">59.4%</div><div class="delta flat">~43 Mt, near its ~45 Mt policy cap</div></div>
+      <div class="kpi"><div class="lbl">Rank among metals</div><div class="val">#2</div><div class="delta flat">2nd only to steel by volume</div></div>
+      <div class="kpi"><div class="lbl">Recycling energy saving</div><div class="val">~95%</div><div class="delta up">vs smelting from ore</div></div>
+    </div>
+    <div class="grid">
+      <div class="card full">
+        <h3><svg><use href="#i-globe"/></svg>2024 Primary Aluminium Production by Country (Mt)</h3>
+        <div class="note">Even more lopsided than steel: China makes ~59% of the world's primary aluminium, because primary aluminium is really "solid electricity," and China has the cheap coal power to make it.</div>
+        <div class="chartbox tall"><canvas id="countryBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>World Production Trend (Mt)</h3>
+        <div class="note">Unlike steel, aluminium demand keeps climbing, lightweighting cars, EV bodies, solar frames and packaging all pull the curve up.</div>
+        <div class="chartbox"><canvas id="trendLine"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Where Aluminium Is Used (global demand)</h3>
+        <div class="note">Transport and construction take about half. Packaging, mostly drink cans, is the recycling poster child.</div>
+        <div class="chartbox"><canvas id="enduseDonut"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCALE -->
+  <div class="panel" id="scale">
+    <div class="card full" style="margin-bottom:20px">
+      <h3><svg><use href="#i-scale"/></svg>72 million tonnes a year, made tangible.</h3>
+      <div class="note">Annual world primary output (~72 Mt) divided by the aluminium in everyday things. Verify-and-cite figures in the footer.</div>
+      <div class="cmp">
+        <div class="cmpcard"><svg class="icon"><use href="#i-bolt"/></svg><div class="big">2.3 t</div><div class="who">every second</div><div class="desc">Smelters pour ~2.3 tonnes of fresh aluminium every second, all year.</div></div>
+        <div class="cmpcard"><svg class="icon"><use href="#i-can"/></svg><div class="big">5.6 tn</div><div class="who">drink cans / year</div><div class="desc">At ~13 g each, a year of output could stamp out ~5.6 trillion cans.</div></div>
+        <div class="cmpcard"><svg class="icon"><use href="#i-plane"/></svg><div class="big">1.0 mn</div><div class="who">Boeing 747s / year</div><div class="desc">A jumbo jet holds ~70 tonnes of aluminium. We make a million's worth.</div></div>
+        <div class="cmpcard"><svg class="icon"><use href="#i-car"/></svg><div class="big">400 mn</div><div class="who">cars' worth / year</div><div class="desc">At ~180 kg of aluminium per modern car, and rising every model year.</div></div>
+      </div>
+    </div>
+    <div class="card full">
+      <h3><svg><use href="#i-scale"/></svg>Aluminium vs Every Other Metal (annual world production, Mt)</h3>
+      <div class="note">Here's the humbling part: aluminium is the world's <strong>#2</strong> metal, yet steel still out-produces it about <strong>25 to 1</strong>. Nothing competes with steel on volume.</div>
+      <div class="chartbox tall"><canvas id="metalsBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ALLOYS -->
+  <div class="panel" id="alloys">
+    <div class="card full" style="margin-bottom:20px">
+      <h3><svg><use href="#i-layers"/></svg>Pure Aluminium Is Weak. The Alloys Are Not.</h3>
+      <div class="note">Pure aluminium yields at ~30 MPa, softer than copper. The whole engineering story is in the alloy series: small additions of copper, magnesium, silicon and zinc multiply its strength by 10× or more.</div>
+      <div class="grid">
+        <div class="infobox">
+          <strong>1xxx</strong>, commercially pure. Soft, conductive, corrosion-proof. Foil, power lines.<br>
+          <strong>2xxx (Al-Cu)</strong>, high strength, aircraft skins. Less corrosion-resistant.<br>
+          <strong>3xxx (Al-Mn)</strong>, moderate strength, very formable. Cans, roofing.<br>
+          <strong>5xxx (Al-Mg)</strong>, marine-grade, weldable, salt-water tough.
+        </div>
+        <div class="infobox">
+          <strong>6xxx (Al-Mg-Si)</strong>, the all-rounder. Extrudable, weldable, strong enough. 6061 &amp; 6063 are everywhere: window frames, bike frames, EV chassis.<br>
+          <strong>7xxx (Al-Zn)</strong>, the strongest. 7075 rivals structural steel in strength at a third of the weight, which is why it flies.
+        </div>
+      </div>
+    </div>
+    <div class="card full">
+      <h3><svg><use href="#i-layers"/></svg>Alloy Library, Composition &amp; Typical Properties</h3>
+      <div class="note">Typical published datasheet values (ASM / MatWeb), standard tempers. Watch yield strength climb across the series while density barely moves (~2.7 g/cc).</div>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Alloy</th><th>Series</th><th>Key alloy</th><th>Yield (MPa)</th><th>Tensile (MPa)</th><th>Density</th><th>Typical use</th></tr></thead>
+          <tbody id="alloyRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTIES -->
+  <div class="panel" id="props">
+    <div class="grid">
+      <div class="card full">
+        <h3><svg><use href="#i-feather"/></svg>Why It Flies: Strength per Unit Weight</h3>
+        <div class="note">Steel is stronger in absolute terms, but aluminium is a third as dense (2.7 vs 7.85 g/cc). Plot strength against density and the trick appears: 7075 aluminium delivers structural-steel strength at a fraction of the weight. That's the entire reason aircraft, EVs and bikes are aluminium.</div>
+        <div class="legendrow">
+          <span><span class="dot" style="background:var(--accent)"></span>Aluminium alloys</span>
+          <span><span class="dot" style="background:var(--red)"></span>Steel (for reference)</span>
+        </div>
+        <div class="chartbox tall"><canvas id="ssScatter"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Specific Strength (yield ÷ density)</h3>
+        <div class="note">Normalise strength by weight and the best aluminium alloys sit right alongside common steels, while weighing far less.</div>
+        <div class="chartbox"><canvas id="specBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Yield Strength Across the Series (MPa)</h3>
+        <div class="note">From soft 1100 foil (~117 MPa) to aerospace 7075 (~503 MPa), a 4× span from near-identical density.</div>
+        <div class="chartbox"><canvas id="yieldBar"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENERGY -->
+  <div class="panel" id="energy">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">Electricity per tonne</div><div class="val">~15 MWh</div><div class="delta down">≈ a UK home for 4 years</div></div>
+      <div class="kpi"><div class="lbl">Primary CO₂ (world avg)</div><div class="val">16.5 t</div><div class="delta down">per tonne of aluminium</div></div>
+      <div class="kpi"><div class="lbl">Recycled CO₂</div><div class="val">~0.6 t</div><div class="delta up">~95% lower than primary</div></div>
+      <div class="kpi"><div class="lbl">Recyclable, forever</div><div class="val">∞</div><div class="delta up">no loss of properties on remelt</div></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3><svg><use href="#i-recycle"/></svg>Primary vs Recycled, Energy per Tonne (GJ)</h3>
+        <div class="note">Recycling a tonne of aluminium needs ~8 GJ. Making it fresh from bauxite needs ~186 GJ. That ~95% gap is why the scrap aluminium in your bin is worth real money.</div>
+        <div class="chartbox"><canvas id="recycleBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Primary CO₂ Depends Entirely on the Power Source</h3>
+        <div class="note">Aluminium has no single carbon number. Smelt it on coal and it's ~20 t CO₂/t; on hydro, ~4 t. Two-thirds of its footprint is just the electricity.</div>
+        <div class="chartbox"><canvas id="co2Bar"></canvas></div>
+      </div>
+      <div class="card full">
+        <h3>Why It Matters</h3>
+        <div class="infobox" style="margin-bottom:0">
+          Aluminium is a paradox: one of the <strong>most energy-intensive materials to make</strong>, yet one of the <strong>most climate-friendly to reuse</strong>. A primary tonne can carry 16.5 t of CO₂; the same metal recycled carries almost none, and aluminium loses nothing on remelting, so it can cycle indefinitely. The lever is the grid: because ~60% of primary aluminium is smelted in China on coal power, the metal's global footprint rises and falls with where the electricity comes from. Decarbonising aluminium is really two problems, <strong>cleaner smelter power</strong> and <strong>collecting more scrap</strong>, and the second one is the cheapest tonne of carbon savings in heavy industry.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Data: International Aluminium Institute (primary production, carbon-footprint FAQs) · USGS Mineral Commodity Summaries · Recycling Today · ASM Metals Handbook / MatWeb (typical alloy properties). Scale: drink can ~13 g; Boeing 747 ~70 t aluminium; ~180 kg aluminium/car.<br>
+    Production in Mt (million tonnes), primary metal. Property values are typical published datasheet figures for standard tempers, illustrative, not specification.<br>
+    Built by Ibtisam Ahmed Khan · June 2026 · Materials Data Series No. 02 · Aluminium · linkedin.com/in/ibtisam-ahmed-khan
+  </footer>
+</div>
+
+<script>
+Chart.defaults.color='#97a6b6';
+Chart.defaults.borderColor='rgba(151,166,182,.12)';
+Chart.defaults.font.family="'Fira Sans',system-ui,sans-serif";
+Chart.defaults.plugins.tooltip.backgroundColor='#19222e';
+Chart.defaults.plugins.tooltip.padding=12;
+Chart.defaults.plugins.tooltip.cornerRadius=10;
+Chart.defaults.plugins.tooltip.titleFont={family:"'Fira Code',monospace"};
+const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+Chart.defaults.animation=reduce?false:{duration:900,easing:'easeOutQuart'};
+
+const C={steel:'#8ba3bd',accent:'#34cfe6',accent2:'#7fe3d0',amber:'#ffc24d',teal:'#34dbf0',green:'#3ee0a4',red:'#ff6b6b',violet:'#b79cff',mute:'#37475d'};
+
+const countries=[
+ {n:'China',v:42.95,riser:false},{n:'India',v:4.20,riser:true},{n:'Russia',v:3.80,riser:false},
+ {n:'Canada',v:3.30,riser:false},{n:'United Arab Emirates',v:2.70,riser:false},{n:'Bahrain',v:1.65,riser:false},
+ {n:'Australia',v:1.55,riser:false},{n:'Norway',v:1.38,riser:false},{n:'United States',v:0.86,riser:false},{n:'Iceland',v:0.76,riser:false}];
+
+const alloys=[
+ {a:'1100-H14',s:'1xxx pure',k:'99% Al',y:117,t:124,d:2.71,use:'Foil, electrical',fam:'p'},
+ {a:'2024-T3',s:'2xxx Cu',k:'Al-Cu',y:345,t:483,d:2.78,use:'Aircraft structures',fam:'h'},
+ {a:'3003-H14',s:'3xxx Mn',k:'Al-Mn',y:145,t:150,d:2.73,use:'Roofing, cookware',fam:'m'},
+ {a:'5052-H32',s:'5xxx Mg',k:'Al-Mg',y:193,t:228,d:2.68,use:'Marine, tanks',fam:'m'},
+ {a:'6061-T6',s:'6xxx Mg-Si',k:'Al-Mg-Si',y:276,t:310,d:2.70,use:'Structural, frames',fam:'a'},
+ {a:'6063-T6',s:'6xxx Mg-Si',k:'Al-Mg-Si',y:214,t:241,d:2.70,use:'Extrusions, windows',fam:'a'},
+ {a:'7075-T6',s:'7xxx Zn',k:'Al-Zn-Mg-Cu',y:503,t:572,d:2.81,use:'Aircraft, high-stress',fam:'h'},
+ {a:'A356-T6',s:'Cast Si',k:'Al-Si-Mg',y:205,t:280,d:2.67,use:'Cast wheels, engine',fam:'m'}];
+const famColor={p:C.steel,m:C.accent2,a:C.accent,h:C.violet};
+// steel reference points for the strength-to-weight scatter
+const steelRef=[{a:'Mild steel (A36)',y:250,d:7.85},{a:'Alloy steel 4140',y:655,d:7.85},{a:'4340 (q&t)',y:1500,d:7.85}];
+
+const trend=[[2019,63.7],[2020,65.3],[2021,67.2],[2022,68.5],[2023,70.3],[2024,72.3],[2025,73.8]];
+const enduse=[['Transport',27],['Construction',22],['Packaging',16],['Electrical',12],['Machinery',9],['Consumer durables',7],['Other',7]];
+const metals=[['Steel',1850],['Aluminium',72],['Copper',26],['Zinc',12],['Lead',12],['Nickel',3.6]];
+const recycle=[['Primary (from bauxite)',186],['Recycled (scrap)',8.3]];
+const co2=[['Coal-powered',20],['World average',16.5],['Hydro-powered',4]];
+
+/* Production */
+new Chart(countryBar,{type:'bar',
+ data:{labels:countries.map(c=>c.n),datasets:[{data:countries.map(c=>c.v),
+   backgroundColor:countries.map(c=>c.riser?C.accent:C.steel),borderRadius:8,maxBarThickness:36}]},
+ options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} Mt · ${(c.raw/72.294*100).toFixed(1)}% of world`}}},
+  scales:{x:{title:{display:true,text:'2024 primary aluminium (Mt)'}},y:{grid:{display:false},ticks:{font:{size:12,weight:'600'},color:'#eef3f8'}}}}});
+
+new Chart(trendLine,{type:'line',
+ data:{labels:trend.map(t=>t[0]),datasets:[{data:trend.map(t=>t[1]),borderColor:C.accent,backgroundColor:'rgba(52,207,230,.12)',fill:true,tension:.35,borderWidth:3,pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#0b0f14',pointBorderColor:C.accent,pointBorderWidth:2.5}]},
+ options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} Mt`}}},scales:{y:{title:{display:true,text:'Mt'},min:60},x:{grid:{display:false}}}}});
+
+new Chart(enduseDonut,{type:'doughnut',
+ data:{labels:enduse.map(e=>e[0]+' '+e[1]+'%'),datasets:[{data:enduse.map(e=>e[1]),backgroundColor:[C.accent,C.steel,C.amber,C.violet,C.teal,C.green,C.mute],borderColor:'#0b0f14',borderWidth:3,hoverOffset:12}]},
+ options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,pointStyle:'circle',padding:9,font:{size:11.5}}},tooltip:{callbacks:{label:c=>` ${c.label}`}}}}});
+
+/* Scale */
+new Chart(metalsBar,{type:'bar',
+ data:{labels:metals.map(m=>m[0]),datasets:[{data:metals.map(m=>m[1]),backgroundColor:metals.map(m=>m[0]==='Aluminium'?C.accent:m[0]==='Steel'?C.steel:C.mute),borderRadius:8,maxBarThickness:54}]},
+ options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} Mt/yr`}}},scales:{y:{title:{display:true,text:'Annual world production (Mt)'}},x:{grid:{display:false},ticks:{font:{size:13,weight:'600'},color:'#eef3f8'}}}}});
+
+/* Alloys table */
+const famPill={p:C.steel,m:C.accent2,a:C.accent,h:C.violet};
+document.getElementById('alloyRows').innerHTML=alloys.map(r=>`<tr>
+ <td style="font-weight:700">${r.a}</td>
+ <td><span class="pill" style="background:${famPill[r.fam]}22;color:${famPill[r.fam]}">${r.s}</span></td>
+ <td style="color:#97a6b6">${r.k}</td>
+ <td class="mono" style="font-weight:700">${r.y}</td><td class="mono">${r.t}</td><td class="mono">${r.d}</td>
+ <td style="color:#97a6b6">${r.use}</td></tr>`).join('');
+
+/* Properties: strength vs density scatter (Al alloys + steel refs) */
+new Chart(ssScatter,{type:'scatter',
+ data:{datasets:[
+   ...alloys.map(r=>({label:r.a,data:[{x:r.d,y:r.y,a:r.a,t:r.t}],backgroundColor:famColor[r.fam],borderColor:'#0b0f14',borderWidth:1.5,pointRadius:9,pointHoverRadius:13})),
+   ...steelRef.map(r=>({label:r.a,data:[{x:r.d,y:r.y,a:r.a,t:null}],backgroundColor:C.red,borderColor:'#0b0f14',borderWidth:1.5,pointStyle:'rectRot',pointRadius:10,pointHoverRadius:14}))]},
+ options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>c[0].raw.a,label:c=>{const r=c.raw;return r.t?[` Yield: ${r.y} MPa`,` Density: ${r.x} g/cc`,` Tensile: ${r.t} MPa`]:[` Yield: ${r.y} MPa`,` Density: ${r.x} g/cc`]}}}},
+  scales:{x:{title:{display:true,text:'Density (g/cc) →  heavier'},min:2,max:8.5},y:{title:{display:true,text:'Yield strength (MPa) →  stronger'},min:0,max:1600}}}});
+
+const spec=alloys.map(r=>({a:r.a,v:Math.round(r.y/r.d),fam:r.fam}))
+ .concat([{a:'Mild steel',v:Math.round(250/7.85),fam:'ref'},{a:'4140 steel',v:Math.round(655/7.85),fam:'ref'}])
+ .sort((a,b)=>a.v-b.v);
+new Chart(specBar,{type:'bar',
+ data:{labels:spec.map(r=>r.a),datasets:[{data:spec.map(r=>r.v),backgroundColor:spec.map(r=>r.fam==='ref'?C.red:famColor[r.fam]),borderRadius:6,maxBarThickness:20}]},
+ options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} kN·m/kg (yield ÷ density)`}}},scales:{x:{title:{display:true,text:'Specific strength (yield ÷ density)'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+const ys=[...alloys].sort((a,b)=>a.y-b.y);
+new Chart(yieldBar,{type:'bar',
+ data:{labels:ys.map(r=>r.a),datasets:[{data:ys.map(r=>r.y),backgroundColor:ys.map(r=>famColor[r.fam]),borderRadius:6,maxBarThickness:22}]},
+ options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} MPa yield`}}},scales:{x:{title:{display:true,text:'Yield strength (MPa)'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+/* Energy */
+new Chart(recycleBar,{type:'bar',
+ data:{labels:recycle.map(r=>r[0]),datasets:[{data:recycle.map(r=>r[1]),backgroundColor:[C.red,C.green],borderRadius:8,maxBarThickness:80}]},
+ options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} GJ per tonne`}}},scales:{x:{title:{display:true,text:'Energy per tonne (GJ)'}},y:{grid:{display:false},ticks:{font:{size:12,weight:'600'},color:'#eef3f8'}}}}});
+
+new Chart(co2Bar,{type:'bar',
+ data:{labels:co2.map(c=>c[0]),datasets:[{data:co2.map(c=>c[1]),backgroundColor:co2.map(c=>c[0]==='Coal-powered'?C.red:c[0]==='World average'?C.amber:C.green),borderRadius:7,maxBarThickness:60}]},
+ options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} t CO₂ per tonne aluminium`}}},scales:{y:{title:{display:true,text:'t CO₂ / t aluminium'}},x:{grid:{display:false},ticks:{font:{size:12,weight:'600'},color:'#eef3f8'}}}}});
+
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.addEventListener('click',()=>{
+ tabs.forEach(x=>{x.classList.remove('active');x.setAttribute('aria-selected','false')});
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('show'));
+ t.classList.add('active');t.setAttribute('aria-selected','true');
+ document.getElementById(t.dataset.p).classList.add('show');
+ if(history.replaceState)history.replaceState(null,'','#'+t.dataset.p);
+}));
+const h=location.hash.replace('#','');
+if(h){const t=document.querySelector(`.tab[data-p="${h}"]`);if(t)t.click();}
+</script>
+</body>
+</html>
